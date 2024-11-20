@@ -16,10 +16,9 @@
  * limitations under the License.
  */
 
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 
-// @ts-expect-error Untyped import. See `decisions/imports-ts-suppressions.md`.
-import Transition from 'react-transition-group/Transition';
+import { Transition } from 'react-transition-group';
 
 import { animations } from '@skyscanner/bpk-foundations-web/tokens/base.es6';
 
@@ -33,40 +32,43 @@ import STYLES from './BpkDrawerContent.module.scss';
 
 const getClassName = cssModules(STYLES);
 
-export type Props = {
-  children: ReactNode;
-  dialogRef: () => void;
-  onCloseAnimationComplete: () => void;
-  onClose: () => void;
-  id: string;
-  title: string;
-  className?: string | null;
-  contentClassName?: string | null;
-  closeLabel?: string | null;
-  closeText?: string | null;
-  isDrawerShown?: boolean;
-  hideTitle?: boolean;
-  closeOnScrimClick?: boolean;
-  isIphone?: boolean;
-  isIpad?: boolean;
-  [rest: string]: any;
+type Props = {
+  children: ReactNode,
+  dialogRef: () => RefObject<HTMLElement>,
+  onCloseAnimationComplete: () => void,
+  onClose: () => void
+  id: string,
+  title: string,
+  className?: string | null,
+  contentClassName?: string,
+  closeLabel?: string,
+  closeText?: string,
+  isDrawerShown?: boolean,
+  hideTitle?: boolean,
+  closeOnScrimClick?: boolean,
+  isIphone?: boolean,
+  isIpad?: boolean,
+  padded?: boolean,
+  mobileModalDisplay?: boolean,
 };
 
 const BpkDrawerContent = ({
   children,
-  className = null,
-  closeLabel = null,
+  className,
+  closeLabel,
   closeOnScrimClick = true, // Unused from withScrim scrim HOC
-  closeText = null,
-  contentClassName = null,
+  closeText,
+  contentClassName,
   dialogRef,
   hideTitle = false,
   id,
   isDrawerShown = true,
   isIpad = false, // Unused from withScrim scrim HOC
   isIphone = false, // Unused from withScrim scrim HOC
+  mobileModalDisplay = false,
   onClose,
   onCloseAnimationComplete,
+  padded,
   title,
   ...rest
 }: Props) => {
@@ -81,6 +83,10 @@ const BpkDrawerContent = ({
 
   if (hideTitle) {
     headerClassNames.push(getClassName('bpk-drawer__heading--visually-hidden'));
+  }
+
+  if (padded) {
+    contentClassNames.push(getClassName('bpk-drawer__content--padded'));
   }
 
   if (contentClassName) {
@@ -110,7 +116,7 @@ const BpkDrawerContent = ({
           aria-labelledby={headingId}
           className={[
             drawerClassNames.join(' '),
-            getClassName(`bpk-drawer--${status}`),
+            getClassName(`bpk-drawer--${status}`, mobileModalDisplay ? `bpk-drawer__modal-mobile-view--${status}` : undefined),
           ].join(' ')}
           ref={dialogRef}
           {...rest}
@@ -134,7 +140,5 @@ const BpkDrawerContent = ({
     </Transition>
   );
 };
-
-
 
 export default BpkDrawerContent;

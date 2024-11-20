@@ -16,23 +16,41 @@
  * limitations under the License.
  */
 
-import { render, screen } from '@testing-library/react';
+import type { ReactElement } from 'react';
+
+import { render } from '@testing-library/react';
 
 import BpkDrawerContent from './BpkDrawerContent';
 
 jest.mock(
   'react-transition-group/Transition',
   () =>
-    // @ts-ignore - This is a mock for a 3rd party lib
-    ({ children }) =>
+    ({ children }: { children: (state: string) => ReactElement }) =>
       children('entered'),
 );
 
 describe('BpkDrawerContent', () => {
   it('should render correctly', () => {
-    render(
+    const { asFragment } = render(
       <BpkDrawerContent
         id="my-drawer"
+        title="Drawer title"
+        onClose={jest.fn()}
+        onCloseAnimationComplete={jest.fn()}
+        closeLabel="Close"
+        dialogRef={jest.fn()}
+        >
+        Drawer content
+      </BpkDrawerContent>,
+    );
+    expect(asFragment()).toMatchSnapshot();
+  });
+
+  it('should render correctly when it has a className', () => {
+    const { asFragment } = render(
+      <BpkDrawerContent
+        id="my-drawer"
+        className="my-classname"
         title="Drawer title"
         onClose={jest.fn()}
         onCloseAnimationComplete={jest.fn()}
@@ -42,11 +60,27 @@ describe('BpkDrawerContent', () => {
         Drawer content
       </BpkDrawerContent>,
     );
-    expect(screen.getByText('Drawer content')).toBeVisible();
+    expect(asFragment()).toMatchSnapshot();
+  });
+
+  it('should render correctly when it has padded=true', () => {
+    const { asFragment } = render(
+      <BpkDrawerContent
+        id="my-drawer"
+        title="Drawer title"
+        onClose={jest.fn()}
+        onCloseAnimationComplete={jest.fn()}
+        dialogRef={jest.fn()}
+        padded
+      >
+        Drawer content
+      </BpkDrawerContent>,
+    );
+    expect(asFragment()).toMatchSnapshot();
   });
 
   it('should render correctly when it has a contentClassName', () => {
-    render(
+    const { asFragment } = render(
       <BpkDrawerContent
         id="my-drawer"
         contentClassName="my-classname"
@@ -59,12 +93,11 @@ describe('BpkDrawerContent', () => {
         Drawer content
       </BpkDrawerContent>,
     );
-    expect(screen.getByText('Drawer content')).toBeVisible();
-    expect(document.getElementsByClassName('bpk-drawer__content my-classname')[0]).toBeInTheDocument();
+    expect(asFragment()).toMatchSnapshot();
   });
 
   it('should render correctly with hideTitle', () => {
-    render(
+    const { asFragment } = render(
       <BpkDrawerContent
         id="my-drawer"
         title="Drawer title"
@@ -77,12 +110,11 @@ describe('BpkDrawerContent', () => {
         Drawer content
       </BpkDrawerContent>,
     );
-    expect(screen.getByText('Drawer content')).toBeVisible();
-    expect(document.getElementsByClassName('bpk-drawer__heading bpk-drawer__heading--visually-hidden')[0]).toBeInTheDocument();
+    expect(asFragment()).toMatchSnapshot();
   });
 
   it('should render correctly with arbitrary attributes', () => {
-    render(
+    const { asFragment } = render(
       <BpkDrawerContent
         id="my-drawer"
         title="Drawer title"
@@ -95,7 +127,6 @@ describe('BpkDrawerContent', () => {
         Drawer content
       </BpkDrawerContent>,
     );
-    const find = document.querySelector('[data-arbitrary="prop"]');
-    expect(find).toBeInTheDocument();
+    expect(asFragment()).toMatchSnapshot();
   });
 });
